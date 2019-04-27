@@ -1,6 +1,6 @@
 # cs455-term-project
 ## compilation instructions
-A build.gradle file is included, so simply build wiht the command "gradle build". This command will produce a jar file called output.jar in the build/libs directory.
+A build.gradle file is included, so simply build with the command "gradle build". This command will produce a jar file called output.jar in the build/libs directory.
 
 ## running the program
 Compiling will produce a jar and you simply have to submit the jar file to your spark cluster to run the program. Use the command "$SPARK_HOME/bin/spark-submit --master <spark://Spark_master_hostname:spark_master_port> --deploy-mode client --class cs455.spark.readimages.ReadImages --supervise ./build/libs/output.jar"
