@@ -37,13 +37,13 @@ class SVCModel:
         X = dataAsDataFrame.values[:,1:]
         Xtrain,Ttrain,Xtest,Ttest = partition(X,T,trainPart = 0.7, shuffle = True, classification = True)       
 
-        print("Training sample "+Ttrain[0]+"\t"+str(Ttrain.shape))
-        print("Training sample "+Xtrain[0]+"\t"+str(Xtrain.shape))
-        print("Testing sample "+Ttest[0]+"\t"+str(Ttest.shape))
-        print("Testing sample "+Xtest[0]+"\t"+str(Xtest.shape))
-
-        self.train(Xtrain,Ttrain)
-        self.test(Xtest,Ttest)
+        #print("Training sample "+Ttrain[0]+"\t"+str(Ttrain.shape))
+        #print("Training sample "+Xtrain[0]+"\t"+str(Xtrain.shape))
+        print("Learning for classes"+np.unique(Ttest)+"\tNumber of samples: "+str(Ttest.shape[0]))
+        #print("Testing sample "+Xtest[0]+"\t"+str(Xtest.shape))
+        if len(np.unique(Ttest))>1:
+            self.train(Xtrain,Ttrain)
+            self.test(Xtest,Ttest)
 
 
     def train(self, Xtrain, Ttrain):
