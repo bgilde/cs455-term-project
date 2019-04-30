@@ -7,6 +7,10 @@ import cv2
 import numpy as np
 import pandas as pd
 
+
+from classify import SVCModel
+
+
 if __name__ == '__main__':
    sc = SparkContext('local',appName="Example App")
    image_rdd = ImageSchema.readImages("hdfs://indianapolis.cs.colostate.edu:6666/cs455/images").rdd
@@ -85,6 +89,7 @@ if __name__ == '__main__':
          featuresAndLabels.append(frameData.ravel())
 
    df = pd.DataFrame(data=featuresAndLabels)
+   SVCModel(df)
    #print(df)
   # f = open("demofile2.txt", "a")
   # f.write("Now the file has more content!")
