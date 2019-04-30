@@ -5,6 +5,7 @@ from pyspark import SparkContext
 from pyspark.ml.image import ImageSchema
 import cv2
 import numpy as np
+import pandas as pd
 
 if __name__ == '__main__':
    sc = SparkContext('local',appName="Example App")
@@ -67,30 +68,25 @@ if __name__ == '__main__':
       filename = x.image.origin.split('/')[-1]
       image = np.array(x.image.data)
       image = image.reshape((480,854,3))
-      cv2.imwrite("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/new_image.jpg", image)
+      #cv2.imwrite("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/new_image.jpg", image)
       gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
       faces = face_cascade.detectMultiScale(gray, 1.3, 5)
       for (x,y,w,h) in faces:
          face = image[y:y+h,x:x+w,:]
-         cv2.imwrite("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/test.jpg", face)
+         #cv2.imwrite("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/test.jpg", face)
          faceBlob = cv2.dnn.blobFromImage(face, 1.0 / 255,
                   (96, 96), (0, 0, 0), swapRB=True, crop=False)
 
          embedder.setInput(faceBlob)
          vec = embedder.forward()
+         nameTokens=filename.split('_')
+         actorName = nameTokens[0]+' '+nameTokens[1]
+         frameData = np.hstack((np.array([actorName]).reshape((-1,1)),np.array(vec)))
+         featuresAndLabels.append(frameData.ravel())
 
-         featuresAndLabels.append((filename, vec))
+   df = pd.DataFrame(data=featuresAndLabels)
+   #print(df)
+  # f = open("demofile2.txt", "a")
+  # f.write("Now the file has more content!")
+   #print(featuresAndLabels)
 
-      # featuresAndLabels.append(f(x, cascade, embed))
-
-   print(featuresAndLabels)
-
-   # features = image_rdd.map(lambda x: f(x))
-
-   # count = features.count()
-
-   # print("count: " + str(count))
-
-   # embedder = embedder_broadcast.value
-   # print("EMBEDDER")
-   # print(embedder)
