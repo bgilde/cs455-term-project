@@ -7,9 +7,8 @@ import cv2
 import numpy as np
 
 if __name__ == '__main__':
-   sc = SparkContext(appName="Example App")
-   # sc.setMaster('yarn')
-   image_rdd = ImageSchema.readImages("hdfs://pierre:41234/cs455/images_large").rdd
+   sc = SparkContext('local',appName="Example App")
+   image_rdd = ImageSchema.readImages("hdfs://indianapolis.cs.colostate.edu:6666/cs455/images").rdd
    image_rdd = image_rdd.repartition(15)
    image_rdd.cache()
    # image_df.show()
@@ -61,8 +60,8 @@ if __name__ == '__main__':
 
    test = [x for x in image_rdd.toLocalIterator()]
 
-   face_cascade = cv2.CascadeClassifier('/s/chopin/a/grad/bgilde/distributed-systems/spark/python/haarcascade_frontalface_alt.xml')
-   embedder = cv2.dnn.readNetFromTorch("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/openface.nn4.small2.v1.t7")
+   face_cascade = cv2.CascadeClassifier('/s/bach/k/under/nsunny/Documents/cs455/cs455-term-project/haarcascade_frontalface_alt.xml')
+   embedder = cv2.dnn.readNetFromTorch('/s/bach/k/under/nsunny/Documents/cs455/cs455-term-project/openface.nn4.small2.v1.t7')
 
    for x in test:
       filename = x.image.origin.split('/')[-1]
