@@ -1,3 +1,6 @@
+'''
+Authors: Brandon Gildemaster, Cam Nagel and Nikolai Sannikov
+'''
 from pyspark import SparkContext
 import face_recognition
 from pyspark import SparkContext
@@ -13,7 +16,7 @@ from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 if __name__ == '__main__':
 
-   sc = SparkContext(appName="Example App")
+   sc = SparkContext(appName="Recognition App")
 
    image_rdd = ImageSchema.readImages("hdfs://pierre:41234/cs455/combined_images").rdd
    image_rdd = image_rdd.repartition(20)
