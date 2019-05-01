@@ -2,11 +2,11 @@
 Authors: Brandon Gildemaster, Cam Nagel and Nikolai Sannikov
 '''
 from pyspark import SparkContext
-import face_recognition
 from pyspark import SparkContext
 from pyspark.ml.image import ImageSchema
 import cv2
 import numpy as np
+import sys
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.feature import VectorAssembler
 from pyspark.sql import Row
@@ -18,17 +18,20 @@ if __name__ == '__main__':
 
    sc = SparkContext(appName="Recognition App")
 
-   image_rdd = ImageSchema.readImages("hdfs://pierre:41234/cs455/combined_images").rdd
+   output_directory = sc.broadcast(sys.argv[1])
+   image_directory = sc.broadcast(sys.argv[2])
+
+   # hdfs://pierre:41234/cs455/combined_images
+   image_rdd = ImageSchema.readImages(image_directory.value).rdd
    image_rdd = image_rdd.repartition(20)
    image_rdd.cache()
 
-   old_image_df = image_rdd.map(lambda line: Row(origin=line[0][0], data=line[0][5])).toDF()
 
    ## this function will create a 128 feature embedding for each face, now we need to train a neural network on top of this
    def f(old_image):
       # load the two pre-trained neural networks
-      face_cascade = cv2.CascadeClassifier('/s/chopin/a/grad/bgilde/distributed-systems/spark/python/haarcascade_frontalface_alt.xml')
-      embedder = cv2.dnn.readNetFromTorch("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/openface.nn4.small2.v1.t7")
+      face_cascade = cv2.CascadeClassifier(output_directory.value + '/haarcascade_frontalface_alt.xml')
+      embedder = cv2.dnn.readNetFromTorch(output_directory.value + "/openface.nn4.small2.v1.t7")
       filename = old_image.image.origin.split('/')[-1]
       image = np.array(old_image.image.data)
       image = image.reshape((480,854,3))
@@ -47,10 +50,6 @@ if __name__ == '__main__':
 
          # extract name to use as label
          temp = filename.strip('0123456789.png')
-
-         # if 'Monique' in temp: return (0, vec, filename.strip('0123456789.png'), old_image.image.origin, old_image.image.data)
-         # elif 'Greta' in temp: return (1, vec, filename.strip('0123456789.png'), old_image.image.origin, old_image.image.data)
-         # else: return (2, vec, filename.strip('0123456789.png'), old_image.image.origin, old_image.image.data)
 
          # return one hot encoded class label, feature vector and origin filename
          if 'Amanda' in temp: return (0, vec, filename.strip('0123456789.png'), old_image.image.origin, old_image.image.data)
@@ -176,7 +175,8 @@ if __name__ == '__main__':
          elif old_image.prediction == 33: cv2.putText(image, "Sean", (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
          elif old_image.prediction == 34: cv2.putText(image, "Soraya", (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
          else: cv2.putText(image, "Thomas", (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
-         cv2.imwrite("/s/chopin/a/grad/bgilde/distributed-systems/spark/python/" + filename, image)
+            # /s/chopin/a/grad/bgilde/distributed-systems/spark/python/
+         cv2.imwrite(output_directory.value + filename, image)
 
    result_rdd = result.rdd
 
